@@ -84,7 +84,11 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
         // }).catch((err) => {
         //     return res.status(400).send();
         // }); 
-        Todo.remove({});
+        Todo.remove({}).then((result) => {
+            return res.send(result);
+        }).catch((err) => {
+            console.log(err);
+        });;
     })
 
 
