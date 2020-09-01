@@ -2,7 +2,7 @@
 const mongoose= require('mongoose');
 
 mongoose.Promise= global.Promise;                
-mongoose.connect('mongodb+srv://newuser:newuser@cluster0.nv0tm.mongodb.net/ToDoApp',{
+mongoose.connect( 'mongodb+srv://newuser:newuser@cluster0.nv0tm.mongodb.net/ToDoApp' ||'mongodb://localhost:27017/ToDoApp',{
     useNewUrlParser:true,
     useUnifiedTopology:true
 });
@@ -10,3 +10,4 @@ mongoose.connect('mongodb+srv://newuser:newuser@cluster0.nv0tm.mongodb.net/ToDoA
 module.exports={
     mongoose:mongoose
 }
+
