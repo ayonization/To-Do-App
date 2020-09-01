@@ -69,26 +69,27 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
     //Deleting todos by id
     app.delete('/todos/:id',(req,res)=>{         //Passing id of doc to be deleted in the url as a param
 
-        // var id=req.params.id;                    //Extracting the id from the req object
-        // if(!ObjectID.isValid(id))                //Checking the validity of the id
-        // {
-        //     return res.status(404).send();       
-        // }
+        var id=req.params.id;                    //Extracting the id from the req object
+        if(!ObjectID.isValid(id))                //Checking the validity of the id
+        {
+            return res.status(404).send();       
+        }
 
-        // Todo.findByIdAndRemove(id).then((doc) => {
-        //     if(!doc)
-        //     {
-        //         return res.status(400).send();    //If no doc matches the id
-        //     }
-        //     return res.status(200).send(doc);     //Deleting the doc and sending it back
-        // }).catch((err) => {
-        //     return res.status(400).send();
-        // }); 
-        Todo.remove({}).then((result) => {
-            return res.send(result);
+        Todo.findByIdAndRemove(id).then((doc) => {
+            if(!doc)
+            {
+                return res.status(400).send();    //If no doc matches the id
+            }
+            return res.status(200).send(doc);     //Deleting the doc and sending it back
         }).catch((err) => {
-            console.log(err);
-        });;
+            return res.status(400).send();
+        }); 
+        
+        // Todo.remove({}).then((result) => {
+        //     return res.send(result);
+        // }).catch((err) => {
+        //     console.log(err);
+        // });;
     })
 
 
