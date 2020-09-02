@@ -1,3 +1,4 @@
+const config= require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
@@ -9,7 +10,7 @@ const {Todo} = require('./models/todo');        //Requiring Todo model
 const {User} = require('./models/user');        //Requiring User model
 
 const app=express();
-const port=process.env.PORT || 3000;            //Port is set to 3000 if not running on heroku, otherwise its set by heroku
+const port=process.env.PORT ;                   //Port is set to 3000 if not running on heroku, otherwise its set by heroku
 
 app.use(bodyParser.json());                     //Configuring middleware. Now we can send json to the server                                               
 
