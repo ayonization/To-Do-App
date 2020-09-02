@@ -80,7 +80,7 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
             {
                 return res.status(400).send();    //If no doc matches the id
             }
-            return res.status(200).send(doc);     //Deleting the doc and sending it back
+            return res.status(200).send({doc});     //Deleting the doc and sending it back
         }).catch((err) => {
             return res.status(400).send();
         }); 
@@ -93,34 +93,40 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
     })
 
 
-//     //Updating a todo by id 
-//     app.patch('/todos/:id',(req,res) => {
+    //Updating a todo by id 
+    app.patch('/todos/:id',(req,res) => {
 
-//         var id=req.params.id;
-//         var body= _.pick(req.body,['text','completed']);                //Making an object of only editable properties from the req user sends
-//                                                                         //If user tries to edit other props,they will not be included
+        var id=req.params.id;
+        var body= _.pick(req.body,['text','completed']);                //Making an object of only editable properties from the req user sends
+                                                                        //If user tries to edit other props,they will not be included
 
-//         if (_.isBoolean(body.completed) && body.completed) {            //if the task is completed, set the completedAt prop
+        if(!ObjectID.isValid(id))                                       //Checking the validity of the id
+        {
+            return res.status(404).send();       
+        }
+
+        if (_.isBoolean(body.completed) && body.completed) {            //if the task is completed, set the completedAt prop
             
-//             body.completedAt=new Date().getTime();
-//         }
-//         else
-//         {
-//             body.completedAt=null;                                      //else completedAt null
-//         }
+            body.completedAt=new Date().getTime();
+        }
+        else
+        {
+            body.completed=false;
+            body.completedAt=null;                                      //else completedAt null
+        }
 
-//         Todo.findByIdAndUpdate(id,{$set:body},{new:true}).then((doc) => {   //Find doc by id, set its properties as entered above by user
-//             if(!doc)                                                        //The doc is now edited according to the body object
-//             {
-//                 return res.status(404);
-//             }
+        Todo.findByIdAndUpdate(id,{$set:body},{new:true}).then((doc) => {   //Find doc by id, set its properties as entered above by user
+            if(!doc)                                                        //The doc is now edited according to the body object
+            {
+                return res.status(404);
+            }
 
-//             return res.send(doc);
+            return res.send({doc});
 
-//         }).catch((err) => {
-//             return res.status(400);
-//         });
-//     })
+        }).catch((err) => {
+            return res.status(400);
+        });
+    })
 
 
 app.listen(port,(req,res) => {

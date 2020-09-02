@@ -100,6 +100,27 @@ describe('GET/todos/:id',()=>{                  //Verifying GET todos route for 
         .expect(404)
         .end(done);
     })
+ 
+describe('DELETE/todos/:id',() => {
+    
+    var hexID=todos[0]._id.toHexString();
 
+    it('should delete todos',(done)=>{
+        request(app)
+        .delete('/todos/'+todos[0]._id.toHexString())
+        .expect(200)
+        .expect((res)=>{
+            expect(res.body.doc._id).toBe(hexID);
+        }).end(done);
+    })
+
+    it('should return 404 if todo not found',(done)=>{
+        
+    })
+
+    it('should return 404 if objectid is invalid',(done)=>{
+
+    })
+})
 
 })
