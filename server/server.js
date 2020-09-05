@@ -152,9 +152,9 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
 
     })
 
-    app.get('/users/me',authenticate, (req, res) => {
+    app.get('/users/me',authenticate, (req, res) => {                       //finds user when given a token and sends back id and email of that user
 
-        res.send(req.user);
+        res.send(req.user);                                                 //sending back user, req object modified previously
 
     })
 
