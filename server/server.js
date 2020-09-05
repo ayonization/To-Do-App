@@ -13,6 +13,8 @@ const app=express();
 const port=process.env.PORT ;                   //Port is set to 3000 if not running on heroku, otherwise its set by heroku
 
 app.use(bodyParser.json());                     //Configuring middleware. Now we can send json to the server                                               
+app.use(bodyParser.urlencoded({extended:true}))
+
 
 app.post('/todos',(req,res)=>{                  //This method POSTS a todo to the server on the 'todos' route
                                                 //req-> client to server, res-> server to client
@@ -129,6 +131,25 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
         });
     })
 
+    //Signing up users
+    app.post('/users',(req,res)=>{
+
+        var body= _.pick(req.body,['email','password']);                    //Picking email and password from the request
+
+        var user= new User(body);                                           //New instance of user
+                                                                            //body already has email and password keys, so passed directly
+        user.save().then(() => {                                            //Saving the user in the database
+            return user.generateAuthToken();
+        }).then((token) => {
+            res.header('x-auth',token).send(user);                          //token sent back as header
+        }).catch((err) => {
+            console.log(err);
+            res.status(400).send(err);
+        });
+
+
+
+    })
 
 app.listen(port,(req,res) => {
     console.log("Server started on port " + port);
