@@ -56,7 +56,35 @@ UserSchema.methods.generateAuthToken = function(){  //Instance methods can be ad
     return user.save().then(() => {                 //saving changes made to user model
         return token;                               //token returned so that it can be accessed in server.js
     })
-}                                                   
+}     
+
+UserSchema.statics.findByToken = function(token){
+
+    var User = this;
+    var decoded;
+
+    try {
+
+        decoded =jwt.verify(token, 'secret');
+    } catch (e) {
+        // return new Promise((resolve,reject)=>{
+
+        //     reject();
+        // })
+
+        return Promise.reject();
+
+        
+    }
+
+    return User.findOne({
+
+        '_id': decoded._id,
+
+        'tokens.token': token,
+        'tokens.access':'auth'
+    })
+}
 
 var User=mongoose.model('User',UserSchema)
 

@@ -8,6 +8,7 @@ const {ObjectID} =require('mongodb')
 
 const {Todo} = require('./models/todo');        //Requiring Todo model
 const {User} = require('./models/user');        //Requiring User model
+var {authenticate}=require('./middleware/authenticate');
 
 const app=express();
 const port=process.env.PORT ;                   //Port is set to 3000 if not running on heroku, otherwise its set by heroku
@@ -27,7 +28,7 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
         completed: req.body.completed
     });
 
-    todo.save().then((doc) => {                 //Saving the instance in the databse,ie sending info from client to server
+    todo.save().then((doc) => {                 //Saving the instance in the database,ie sending info from client to server
         res.send(doc);                          //res object sends back information from the server
                                                 // will send back id,completed,completed at, and text
         
@@ -148,6 +149,12 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
         });
 
 
+
+    })
+
+    app.get('/users/me',authenticate, (req, res) => {
+
+        res.send(req.user);
 
     })
 
