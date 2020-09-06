@@ -59,6 +59,19 @@ UserSchema.methods.generateAuthToken = function(){  //Instance methods can be ad
     })
 }     
 
+UserSchema.methods.removeToken=function(token){
+
+    var user=this;
+
+    return user.update({
+        $pull:{
+            tokens:{
+                token:token
+            }
+        }
+    })
+}
+
 UserSchema.statics.findByToken = function(token){   //model method, takes token value, returns user matching that token
 
     var User = this;                                //binding this to Model

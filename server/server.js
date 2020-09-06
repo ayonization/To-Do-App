@@ -173,6 +173,18 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
         }); 
     })
 
+    //Logging out users
+
+    app.delete('/users/me/token',authenticate,(req,res)=>{
+
+        req.user.removeToken(req.token).then(() => {
+            
+            res.status(200).send();
+        }).catch((err) => {
+            res.status(400).send();
+        });
+    })
+
 app.listen(port,(req,res) => {
     console.log("Server started on port " + port);
     
