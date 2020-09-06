@@ -87,6 +87,38 @@ UserSchema.statics.findByToken = function(token){   //model method, takes token 
     })
 }
 
+UserSchema.statics.findByCredentials=function(email,password){      //finds user matching these credentials
+
+    var User=this;
+
+    return User.findOne({email}).then((user) => {                   //find a user with that email
+        
+        if(!user)                                                   //if no user exists with that email
+        {
+            console.log('user not found');                          
+            return Promise.reject();                                
+        }
+
+        return new Promise((resolve, reject) =>{                    //bcrypt only accepts callbacks, so promise has to be declared explicitly
+
+            bcrypt.compare(password,user.password,(err,res)=>{      //compare provided password with hashed password
+
+                console.log(res);
+                if(res)                                             //if passwords match, return the user
+                {
+                    resolve(user);
+                }
+
+                else {
+                    console.log('passwords dont match');            //else return error
+                   reject();
+                }
+
+                })
+        })
+    })
+}
+
 UserSchema.pre('save',function(next){               //Mongoose middleware so we can perform something(generate hashed password) before an event(save)
 
     var user=this;

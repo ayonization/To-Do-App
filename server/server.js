@@ -158,6 +158,21 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
 
     })
 
+    //Logging in users
+    app.post('/users/login',(req,res)=>{                                    //send email an password in the request
+
+        var body=_.pick(req.body,['email','password']);
+        
+        User.findByCredentials(body.email,body.password).then((user) => {   //verifying user with these credentials exists
+            
+            user.generateAuthToken().then((token) => {                      //generate token for user who logged in
+                res.header('x-auth',token).send(user);                      //send token back in a header
+            })
+        }).catch((err) => {
+            res.status(400).send();
+        }); 
+    })
+
 app.listen(port,(req,res) => {
     console.log("Server started on port " + port);
     
