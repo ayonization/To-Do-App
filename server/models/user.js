@@ -59,12 +59,12 @@ UserSchema.methods.generateAuthToken = function(){  //Instance methods can be ad
     })
 }     
 
-UserSchema.methods.removeToken=function(token){
+UserSchema.methods.removeToken=function(token){     //instance method removes token from a user
 
-    var user=this;
+    var user=this;                                  
 
-    return user.update({
-        $pull:{
+    return user.update({                            //updates array of tokens,                                                                              
+        $pull:{                                     //removes object from the array whose token property is token               
             tokens:{
                 token:token
             }

@@ -17,7 +17,7 @@ app.use(bodyParser.json());                     //Configuring middleware. Now we
 app.use(bodyParser.urlencoded({extended:true}))
 
 
-app.post('/todos',(req,res)=>{                  //This method POSTS a todo to the server on the 'todos' route
+app.post('/todos',authenticate,(req,res)=>{                  //This method POSTS a todo to the server on the 'todos' route
                                                 //req-> client to server, res-> server to client
 
     console.log(req.body);  //{ text: 'This is from postman' }
@@ -25,7 +25,8 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
                                                 //it converts the json the user sends into an object
     var todo= new Todo({
         text:req.body.text,                     //Creating a new instance of Todo model
-        completed: req.body.completed
+        completed: req.body.completed,
+        _creator:req.user._id                   //id of the user who created this todo
     });
 
     todo.save().then((doc) => {                 //Saving the instance in the database,ie sending info from client to server
@@ -37,8 +38,8 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
     });
     })
 
-    app.get('/todos',(req,res)=>{               //Get route returns the todos from the server
-        Todo.find().then((docs) => {            //returns all todos 
+    app.get('/todos',authenticate,(req,res)=>{               //Get route returns the todos from the server
+        Todo.find({_creator:req.user._id}).then((docs) => {            //returns all todos created by this particular user(logged in)
             res.send({docs});                   //sends back the todos object
         }).catch((err) => {                     //we did not send back array because this allows us to set other properties to the todos later
             res.status(400).send(err);
@@ -48,7 +49,7 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
 
     
     //Passing document id in the url
-    app.get('/todos/:id',(req,res)=>{           //:id is a url parameter which is on the req object
+    app.get('/todos/:id',authenticate,(req,res)=>{           //:id is a url parameter which is on the req object
                                                 //This can be accessed as req.params.id
         var id=req.params.id;       
         if(!ObjectID.isValid(id))               //Checking if the id the user passes is valid
@@ -56,7 +57,10 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
             return res.status(404).send("Invalid id");
         }
 
-        Todo.findById(id).then((doc) => {       //Finding the document by the id the user passed
+        Todo.findOne({
+            _id:id,                             //Finding the document by the id the user passed
+            _creator:req.user._id               //Creator of that doc should be the one requesting it
+        }).then((doc) => {       
             if(!doc)
             {   
                 return res.status(404).send("Not found");   //If no document matches that id
@@ -71,7 +75,7 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
     })
     
     //Deleting todos by id
-    app.delete('/todos/:id',(req,res)=>{         //Passing id of doc to be deleted in the url as a param
+    app.delete('/todos/:id',authenticate,(req,res)=>{         //Passing id of doc to be deleted in the url as a param
 
         var id=req.params.id;                    //Extracting the id from the req object
         if(!ObjectID.isValid(id))                //Checking the validity of the id
@@ -79,7 +83,10 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
             return res.status(404).send();       
         }
 
-        Todo.findByIdAndRemove(id).then((doc) => {
+        Todo.findOneAndRemove({
+            _id:id,                              //Deleting todo with this id
+            _creator:req.body.id                 //User who is deleting should be creator of this todo                  
+        }).then((doc) => {
             if(!doc)
             {
                 return res.status(400).send();    //If no doc matches the id
@@ -98,7 +105,7 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
 
 
     //Updating a todo by id 
-    app.patch('/todos/:id',(req,res) => {
+    app.patch('/todos/:id',authenticate,(req,res) => {
 
         var id=req.params.id;
         var body= _.pick(req.body,['text','completed']);                //Making an object of only editable properties from the req user sends
@@ -119,7 +126,10 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
             body.completedAt=null;                                      //else completedAt null
         }
 
-        Todo.findByIdAndUpdate(id,{$set:body},{new:true}).then((doc) => {   //Find doc by id, set its properties as entered above by user
+        Todo.findOneAndUpdate({
+            _id:id,
+            _creator:req.user.creator
+        },{$set:body},{new:true}).then((doc) => {   //Find doc by id, set its properties as entered above by user
             if(!doc)                                                        //The doc is now edited according to the body object
             {
                 return res.status(404);
@@ -175,11 +185,11 @@ app.post('/todos',(req,res)=>{                  //This method POSTS a todo to th
 
     //Logging out users
 
-    app.delete('/users/me/token',authenticate,(req,res)=>{
+    app.delete('/users/me/token',authenticate,(req,res)=>{                  //token stored in authentication middleware, 
 
-        req.user.removeToken(req.token).then(() => {
+        req.user.removeToken(req.token).then(() => {                        //instance method called, token stored in req in authentication middleware          
             
-            res.status(200).send();
+            res.status(200).send();                                         //removes token from the user
         }).catch((err) => {
             res.status(400).send();
         });
