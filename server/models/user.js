@@ -51,7 +51,7 @@ UserSchema.methods.generateAuthToken = function(){  //Instance methods can be ad
 
     var user=this;                                  //this keyword binds individual docs. Arrow functions not bounded to this keyword.
     var access = 'auth';                            //First element of tokens array
-    var token =  jwt.sign({_id:user._id.toHexString(),access},'secret').toString(); //second element of tokens array
+    var token =  jwt.sign({_id:user._id.toHexString(),access},process.env.JWT_SECRET).toString(); //second element of tokens array
     
     user.tokens.push({access,token});               //Pushing the two elements into the array
     return user.save().then(() => {                 //saving changes made to user model
@@ -79,7 +79,7 @@ UserSchema.statics.findByToken = function(token){   //model method, takes token 
 
     try {
 
-        decoded =jwt.verify(token, 'secret');       //setting decoded value
+        decoded =jwt.verify(token, process.env.JWT_SECRET);       //setting decoded value
     } catch (e) {                                   //if verification failed
         // return new Promise((resolve,reject)=>{
 
